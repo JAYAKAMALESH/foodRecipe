@@ -1,0 +1,37 @@
+{
+  "name": "application",
+  "version": "1.0.0",
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@react-navigation/bottom-tabs": "^6.5.8",
+    "@react-navigation/native": "^6.1.7",
+    "@react-navigation/native-stack": "^6.9.13",
+    "axios": "^1.4.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "expo": "~49.0.5",
+    "expo-status-bar": "~1.6.0",
+    "express": "^4.18.2",
+    "git": "^0.1.5",
+    "mongodb": "^5.8.0",
+    "react": "18.2.0",
+    "react-gauge-component": "^1.1.12",
+    "react-native": "0.72.3",
+    "react-native-dropdown-picker": "^5.4.6",
+    "react-native-paper": "^5.10.0",
+    "react-native-select-dropdown": "^3.3.4",
+    "react-native-stock-star-rating": "^1.0.6",
+    "react-native-table-component": "^1.2.2",
+    "react-native-unordered-list": "^1.0.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0"
+  },
+  "private": true
+}
