@@ -18,6 +18,7 @@ const Tab = createBottomTabNavigator();
 export default function BottomNavigation({ route, navigation }) {
   const { setIsLoggedInfun, setIsLoggedIn } = route.params;
   const { currentUser } = useUserContext();
+  console.log("current user from bottom navigation",currentUser)
 
 
 

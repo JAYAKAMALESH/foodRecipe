@@ -1,22 +1,40 @@
 import { StyleSheet, Text, Pressable, View, Image, TouchableHighlight, TouchableOpacity, FlatList, ImageBackground } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SelectDropdown from 'react-native-select-dropdown';
 import Procedure from './second';
 import { useState, useEffect } from 'react';
 import { HomeScreen } from './home';
-import { fooddata } from './food data';
+import { useUserContext } from './userProvider';
+import axios from 'axios';
+
+
+
 const categories = ['All', 'veg', 'non-veg']
 
 
 const Stack = createNativeStackNavigator();
 export default function HomeScreenNavigator(){
     const [category, setCategory] = useState('All');
+    const {setfooddata,fooddata} =useUserContext();
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredData, setFilteredData] = useState(fooddata);
     const [search, setsearch] = useState(false)
     const [err, seterr]=useState(false)
   
+    const getFoodDetails = async () => {
+      try {
+        const response = await axios.get('http:192.168.1.5:5000/fooddata'); 
+        setfooddata(response.data);
+        setFilteredData(response.data); 
+      } catch (error) {
+        console.error('Error fetching food data:', error);
+        seterr(true);
+      }
+    }
+  
+    useEffect(() => {
+      getFoodDetails(); // Fetch food data when the component mounts
+    }, []);
   
     const handleCategoryChange = (newCategory) => {
       setCategory(newCategory);

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, FlatList, Image, Text, ImageBackground } from 'react-native';
-import { fooddata } from './food data';
 import { FoodCard } from './home';
 import { useUserContext } from './userProvider';
 import { useIsFocused } from '@react-navigation/native';
 
+
 export default function Favourite({ navigation }) {
-  const { currentUser } = useUserContext();
+  const { currentUser ,fooddata } = useUserContext();
   const [backgroundImage, setBackgroundImage] = useState(false);
   const isFocused = useIsFocused(); // Get the focused status of the screen
 

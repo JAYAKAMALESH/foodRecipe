@@ -1,20 +1,16 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, Pressable, View, Image, TouchableHighlight, TouchableOpacity, FlatList, ImageBackground } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { StyleSheet, Text, Pressable, View, Image, ActivityIndicator, TouchableOpacity, FlatList, ImageBackground } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Rating } from 'react-native-stock-star-rating';
-import SelectDropdown from 'react-native-select-dropdown';
-import Procedure from './second';
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Searchbar } from 'react-native-paper';
-import { fooddata } from './food data';
 
-const categories = ['All', 'veg', 'non-veg']
-export function FoodCard({ title, imageUri, time, rating, onpress, isVeg, foodDescription }, { navigation }) {
+
+
+export function FoodCard({ title, imageUri, time, rating, onpress, isVeg, foodDescription,loader , onPressIn, onPressOut}, { navigation }) {
   return (
 
-    <TouchableOpacity style={styles.pressable} onPress={onpress} activeOpacity={0.8}>
+    <TouchableOpacity style={styles.pressable} onPress={onpress} activeOpacity={0.6}  >
+     <View style={styles.foodcardOuter}>
       <View style={styles.Foodcard}>
         <View style={styles.foodImgFrame}>
           <Image style={styles.foodImg} source={{ uri: imageUri }} />
@@ -36,11 +32,47 @@ export function FoodCard({ title, imageUri, time, rating, onpress, isVeg, foodDe
           </View>
         </View>
       </View>
+    </View>
     </TouchableOpacity>
   );
 }
 
 export function HomeScreen({ navigation, searchQuery, filteredData, handlequery, search,setsearch, error,}) {
+  const [loaders, setLoaders] = useState([]);
+
+  const handleLoader = (index, isLoading) => {
+  const updatedLoaders = [...loaders];
+  updatedLoaders[index] = isLoading;
+  setLoaders(updatedLoaders);
+};
+
+
+  const renderItem = useMemo(
+    () => ({ item }) => (
+      <View style={styles.listItemContainer}>
+        <FoodCard
+         onpress={() => {
+          console.log("food item pressed")
+          handleLoader(item.id, true);
+          navigation.navigate('procedure', { food: item });
+          navigation.addListener('transitionEnd', () => {
+            handleLoader(item.id, false);
+          });
+        }}
+        
+          title={item.title}
+          imageUri={item.imageuri}
+          time={item.time}
+          rating={item.rating}
+          isVeg={item.isVeg}
+          foodDescription={item.description}
+          loader={loaders[item.id]}
+          onPressIn={() => handleLoader(item.id, true)}
+        />
+      </View>
+    ),
+    [loaders, navigation]
+  );
   return (
     <View style={styles.container}>
       <ImageBackground style={styles.backgroundImg} imageStyle={{ opacity: 0.2 }} source={{ uri: 'https://img.freepik.com/free-vector/sketches-arabic-food-pattern_23-2147543047.jpg?w=740&t=st=1691477289~exp=1691477889~hmac=27bccfc79885fddb3f837c7a8f6b19035da84439a913e1e29f1edadb205b3da7' }}>
@@ -55,22 +87,7 @@ export function HomeScreen({ navigation, searchQuery, filteredData, handlequery,
           style={styles.flatListContainer}
           data={filteredData}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.listItemContainer}>
-              <FoodCard
-                onpress={() => navigation.navigate('procedure',
-                  { food: item }
-                )}
-                title={item.title}
-                imageUri={item.imageuri}
-                time={item.time}
-                rating={item.rating}
-                isVeg={item.isVeg}
-                foodDescription={item.description}
-              />
-            </View>
-          )}
-          ListFooterComponent={<StatusBar style="auto" />}
+          renderItem={renderItem}
         />
       </ImageBackground>
     </View>
@@ -100,16 +117,28 @@ export const styles = StyleSheet.create({
     Foodcard: {
       height: 170,
       width: '97%',
-      backgroundColor: '#ead7f5',
+      backgroundColor: 'rgba(234, 215, 245, 1.0)',
       borderRadius: 10,
       borderBottomWidth: 1,
       borderColor: 'grey',
       opacity: 1,
-  
       marginTop: 10,
       flexDirection: 'row',
       marginStart: 5,
-  
+    },
+    loader:{
+      position:'absolute',
+      height: 170,
+      width: '97%',
+      backgroundColor: 'rgba(234, 215, 245, 0.7)',
+      borderRadius: 10,
+      borderBottomWidth: 1,
+      borderColor: 'grey',
+      alignItems:'center',
+      justifyContent:'center',
+      opacity: 1,
+      marginTop: 10,
+      marginStart: 5,
     },
     foodImgFrame: {
       justifyContent: 'center',
@@ -146,6 +175,9 @@ export const styles = StyleSheet.create({
       height: 70,
       width: 165,
       borderTopWidth: 1,
+    },
+    foodcardOuter:{
+      position:'relative'
     }
   });
   

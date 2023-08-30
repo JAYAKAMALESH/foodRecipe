@@ -17,6 +17,7 @@ export default function FavouriteScreenNavigator() {
             resizeMode="cover"
           />
         ),
+        headerTitleAlign: 'center',
       }}
     >
       <Search.Screen name='favourite' component={Favourite} />
