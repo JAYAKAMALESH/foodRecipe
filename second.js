@@ -1,5 +1,5 @@
 import React, { useState,useEffect } from 'react';
-import { StyleSheet, Text, View, Image, ImageBackground, ScrollView, Pressable } from 'react-native';
+import { StyleSheet, Text, View, Image, ImageBackground, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { Rating } from 'react-native-stock-star-rating';
 import { MaterialIcons, AntDesign } from '@expo/vector-icons';
 import Unorderedlist from 'react-native-unordered-list';
@@ -7,21 +7,47 @@ import { useUserContext } from './userProvider';
 
 
 export default function Procedure({ route }) {
-    const { currentUser, addToFavorites,} = useUserContext();
+    const { currentUser,setCurrentUser, addToFavorites,} = useUserContext();
     const { food } = route.params;
     const inc = food.ingredients;
     const proc = food.procedure;
     const [isFavorite, setIsFavorite] = useState(false);
+    const [loader,setloader]=useState(false);
 
     useEffect(() => {
-      setIsFavorite(currentUser.favouriteItems.includes(food.id));
-    }, [currentUser.favouriteItems, food.id]);
-  
+        setIsFavorite(currentUser?.favouriteItems?.includes(food.id) || false);
+      }, [currentUser]);
+      
     const handleFavoriteToggle = () => {
-      addToFavorites(currentUser.id, food.id);
-      // No need to forceUpdate here
+        // Toggle the local UI state immediately
+        setloader(true)
+        setIsFavorite(!isFavorite);
+    
+        // Call the API to update the backend
+        addToFavorites(currentUser.userid, food.id)
+            .then(response => {
+                if (response.data.success) {
+                    // Update context with the response data to reflect the backend change
+                    setCurrentUser((previousUser) => ({
+                        ...previousUser,
+                        favouriteItems: response.data.favourites,
+                    }));
+                    setloader(false);
+                } else {
+                    // If the API call fails, revert the local UI state
+                    setIsFavorite(!isFavorite); // Toggle back to the previous state
+                    console.log(response.data.message);
+                    // Handle error
+                }
+            })
+            .catch(error => {
+                // If an error occurs, revert the local UI state
+                setIsFavorite(!isFavorite); // Toggle back to the previous state
+                console.error('Error:', error);
+                // Handle error
+            });
     };
-
+    
     
     return (
         <View style={styles.container}>
@@ -47,14 +73,19 @@ export default function Procedure({ route }) {
                                 <Text style={{ color: 'grey' }}> {food.time} mins</Text>
                             </View>
                             <View style={styles.like}>
-                                <Pressable onPress={handleFavoriteToggle}>
+                            <Pressable onPress={handleFavoriteToggle}>
+                            <View>
                                     <AntDesign
-                                        name={currentUser?.favouriteItems?.includes(food.id) ? 'heart' : 'hearto'}
-                                        size={24}
+                                        name={isFavorite ? 'heart' : 'hearto'}
+                                        size={33}
                                         marginTop={4}
-                                        color={currentUser?.favouriteItems?.includes(food.id) ? 'red' : 'black'}
+                                        color={isFavorite ? 'red' : 'black'}
                                     />
-                                </Pressable>
+                           </View>
+                               <View style={styles.loading}>
+                               {loader&&<ActivityIndicator size="small" color={isFavorite?'white':'red'}/>}
+                                </View>
+                            </Pressable>
                             </View>
                         </View>
                         <View style={[styles.ingredientscontainer,]}>
@@ -131,4 +162,13 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         padding: 7,
     },
+    like:{
+        position:'relative',
+    },
+    loading:{
+        position: 'absolute',
+        top:9,
+        left:6,
+        zIndex:1,
+    }
 });

@@ -17,6 +17,7 @@ export default function SearchScreenNavigator(){
                 resizeMode="cover"
               />
             ),
+            headerTitleAlign: 'center',
           }}
         >
             <Search.Screen name='search' component={SearchScreen}/>
